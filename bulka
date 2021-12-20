@@ -1,0 +1,139 @@
+#!/usr/bin/env python3
+
+import os
+import subprocess as sp
+import sys
+from os import path
+from random import choices
+from string import ascii_letters
+from tempfile import NamedTemporaryFile as tmp
+
+editor = os.environ.get('EDITOR') or 'vi'
+
+usage = \
+'''
+bulka - yet another bulk renamer that lets you rename selected files in your $EDITOR/vi
+
+USAGE:
+    1. run `bulka file1 file2 file3 ...` or e.g. `find ... | bulka`
+
+    2. your $EDITOR will open:
+        edit names
+        save & close editor
+
+    then, if all checks* are passed, it will rename your files:
+        1. to temporary names, to avoid conflicts like A -> B and B -> A at the same time
+        2. from temporary to desired new names
+
+CHECKS:
+    1. there are no duplicates
+    2. nothing will get overwritten
+    3. no lines are missing
+    4. names actually changed
+
+LIMITATIONS:
+    doesn't create missing folders
+    doesn't check permissions beforehand
+
+'''
+
+
+def random_string(n=60):
+    return ''.join(choices(ascii_letters, k=n))
+
+
+def get_files():
+    if len(sys.argv) > 1 and sys.argv[1] != '-':
+        files = sys.argv[1:]
+    else:
+        files = [line.rstrip() for line in sys.stdin.readlines()]
+
+    invalid = False
+    for f in filter(lambda fp: not path.exists(fp), files):
+        print(f'err: `{f}` does not exist', file=sys.stderr)
+        invalid = True
+
+    if invalid:
+        sys.exit(1)
+
+    return [path.normpath(path.relpath(fp)) for fp in files]
+
+
+def edit_names(files):
+    with tmp(suffix='.bulka.txt', delete=False, mode='w',
+             encoding='utf-8') as f:
+
+        f.write('\n'.join(files))
+        tmp_file = f.name
+
+    p = sp.run([editor, tmp_file], stdout=sys.stdout, stderr=sys.stderr)
+
+    if p.returncode != 0:
+        print(f'err: {editor} returned {p.returncode}', file=sys.stderr)
+        sys.exit(p.returncode)
+
+    with open(tmp_file, 'r', encoding='utf-8') as f:
+        new_names = [line.strip() for line in f.readlines()]
+
+    os.remove(tmp_file)
+
+    return new_names
+
+
+def do_rename(old, new):
+    # old -> tmp names, to make sure order of renaming doesn't matter
+    tmp_names = []
+    for o in old:
+        t = o + '.' + random_string(10)
+        os.rename(o, t)
+        tmp_names.append(t)
+
+    # tmp -> actual new names
+    for t, n in zip(tmp_names, new):
+        print(f'{t[:-11]} -> {n}')
+        os.rename(t, n)
+
+
+if __name__ == '__main__':
+    if len(sys.argv) == 2 and sys.argv[1] in ['-h', '--help']:
+        print(usage)
+        sys.exit(0)
+
+    files = get_files()
+
+    if len(files) == 0:
+        print('err: no files provided', file=sys.stderr)
+        sys.exit(1)
+
+    new_names = edit_names(files)
+
+    if len(files) != len(new_names):
+        print('err: some lines gone missing', file=sys.stderr)
+        sys.exit(1)
+
+    if len(new_names) != len(set(new_names)):
+        print('err: duplicates in new names', file=sys.stderr)
+        sys.exit(1)
+
+    if files == new_names:
+        print('no names changed')
+        sys.exit(0)
+
+    # keep only what really changed
+    old = []
+    new = []
+    for o, n in zip(files, new_names):
+        if o != n:
+            old.append(o)
+            new.append(n)
+
+    # to make sure we are not going to overwrite anything
+    new_exist = False
+    for n in filter(path.exists, new):
+        print(f'err: `{n}` already exist', file=sys.stderr)
+        new_exist = True
+
+    if new_exist:
+        sys.exit(1)
+
+    do_rename(old, new)
