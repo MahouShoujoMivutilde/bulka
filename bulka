@@ -129,7 +129,7 @@ if __name__ == '__main__':
 
     # to make sure we are not going to overwrite anything
     new_exist = False
-    for n in filter(path.exists, new):
+    for n in filter(lambda f: path.exists(f) and f not in old, new):
         print(f'err: `{n}` already exist', file=sys.stderr)
         new_exist = True
 
