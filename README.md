@@ -82,5 +82,22 @@ harder to apply
 
 So yes, most of the cases here were me going _"wtf, where did that file go?"_.
 
+_But there is another tool_:
+
+* [**dmulholl/vimv**](https://github.com/dmulholl/vimv/) - same name, but has nothing to do with the above:
+  * probably the most feature rich and better designed of them all:
+    * can delete files, but you have to explicitly enable it
+    * can overwrite files, but you have to explicitly enable it
+    * can use `git mv`, but you have to explicitly enable it
+    * supports cyclic renames
+    * written in rust
+  * if I’d known about it, I probably wouldn't bother with `bulka`
+
+This is really good tool, and I suggest you to give it a try. `bulka`'s only
+advantage compared to it is the fact that it is written in ubiquitous scripting
+language, and you don't have to compile it (which is good for e.g. portable
+configuration that you use across multiple architectures), and performance
+wise - doesn't matter since renaming is just i/o bound anyway.
+
 Note, that GNU's `mv` by default will also overwrite files, the problem with the
 above is that unlike with `mv`, you can't force it to check before overwriting.
