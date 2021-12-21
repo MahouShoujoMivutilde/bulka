@@ -82,6 +82,9 @@ harder to apply
 
 So yes, most of the cases here were me going _"wtf, where did that file go?"_.
 
+Note, that GNU's `mv` by default will also overwrite files, the problem with the
+above is that unlike with `mv`, you can't force it to check before overwriting.
+
 _But there is another tool_:
 
 * [**dmulholl/vimv**](https://github.com/dmulholl/vimv/) - same name, but has nothing to do with the above:
@@ -98,6 +101,3 @@ advantage compared to it is the fact that it is written in ubiquitous scripting
 language, and you don't have to compile it (which is good for e.g. portable
 configuration that you use across multiple architectures), and performance
 wise - doesn't matter since renaming is just i/o bound anyway.
-
-Note, that GNU's `mv` by default will also overwrite files, the problem with the
-above is that unlike with `mv`, you can't force it to check before overwriting.
