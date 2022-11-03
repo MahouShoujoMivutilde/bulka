@@ -91,7 +91,7 @@ def do_rename(old, new):
     # tmp -> actual new names
     for t, n in zip(tmp_names, new):
         print(f'{t[:-11]} -> {n}')
-        os.rename(t, n)
+        os.renames(t, n)
 
 
 if __name__ == '__main__':
