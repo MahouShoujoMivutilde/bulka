@@ -18,7 +18,7 @@ Just grab [`bulka`](bulka) script and put somewhere in your `$PATH`, don't forge
 
 then, if all _checks\*_ are passed, it will rename your files:
   1. to temporary names, to avoid conflicts like A -> B and B -> A at the same time
-  2. from temporary to desired new names (using [os.renames](https://docs.python.org/3/library/os.html#os.renames), which creates missing directories, and trims empty ones)
+  2. from temporary to desired new names (creating missing folders if needed)
 
 
 #### (\*) Checks that:

@@ -32,7 +32,6 @@ CHECKS:
     4. names actually changed
 
 LIMITATIONS:
-    doesn't create missing folders
     doesn't check permissions beforehand
 
 '''
@@ -80,6 +79,17 @@ def edit_names(files):
     return new_names
 
 
+def better_renames(old, new):
+    '''
+    Works exactly like `os.renames` (creates missing directories and THEN moves),
+    but doesn't prune empty directories that are left after the move.
+    '''
+    head, tail = path.split(new)
+    if head and tail and not path.exists(head):
+        os.makedirs(head)
+    os.rename(old, new)
+
+
 def do_rename(old, new):
     # old -> tmp names, to make sure order of renaming doesn't matter
     tmp_names = []
@@ -91,7 +101,8 @@ def do_rename(old, new):
     # tmp -> actual new names
     for t, n in zip(tmp_names, new):
         print(f'{t[:-11]} -> {n}')
-        os.renames(t, n)
+        better_renames(t, n)
+        # or use os.renames(t, n) if you want leftover empty directories to be pruned
 
 
 if __name__ == '__main__':
