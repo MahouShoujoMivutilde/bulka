@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import shutil
 import subprocess as sp
 import sys
 from os import path
@@ -8,7 +9,15 @@ from random import choices
 from string import ascii_letters
 from tempfile import NamedTemporaryFile as tmp
 
-editor = os.environ.get('EDITOR') or 'vi'
+editor = os.environ.get('EDITOR')
+
+if not editor:
+    print('warning: $EDITOR is not set, falling back to `vi`', file=sys.stderr)
+    editor = 'vi'
+
+if not shutil.which(editor):
+    print(f'err: editor `{editor}` not found in the $PATH', file=sys.stderr)
+    sys.exit(1)
 
 usage = \
 '''
