@@ -36,8 +36,10 @@ LIMITATIONS:
 
 '''
 
+num_char = 10
 
-def random_string(n=60):
+
+def random_string(n=num_char):
     return ''.join(choices(ascii_letters, k=n))
 
 
@@ -94,13 +96,13 @@ def do_rename(old, new):
     # old -> tmp names, to make sure order of renaming doesn't matter
     tmp_names = []
     for o in old:
-        t = o + '.' + random_string(10)
+        t = o + '.' + random_string()
         os.rename(o, t)
         tmp_names.append(t)
 
     # tmp -> actual new names
-    for t, n in zip(tmp_names, new):
-        print(f'{t[:-11]} -> {n}')
+    for o, t, n in zip(old, tmp_names, new):
+        print(f'{o} -> {n}')
         better_renames(t, n)
         # or use os.renames(t, n) if you want leftover empty directories to be pruned
 
