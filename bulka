@@ -134,7 +134,9 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if len(new_names) != len(set(new_names)):
-        print('err: duplicates in new names', file=sys.stderr)
+        print('err: some of the new names occur more than once:', file=sys.stderr)
+        for n in set(filter(lambda n: new_names.count(n) > 1, new_names)):
+            print(n, file=sys.stderr)
         sys.exit(1)
 
     if files == new_names:
