@@ -76,7 +76,7 @@ def edit_names(files):
         f.write('\n'.join(files))
         tmp_file = f.name
 
-    p = sp.run([editor, tmp_file], stdout=sys.stdout, stderr=sys.stderr)
+    p = sp.run([editor, tmp_file], check=False, stdout=sys.stdout, stderr=sys.stderr)
 
     if p.returncode != 0:
         print(f'err: {editor} returned {p.returncode}', file=sys.stderr)
